@@ -1,12 +1,9 @@
--- Script to rank country origins of bands by the number of (non-unique) fans
+-- Select the origin of the band and the total number of fans
+-- Then group the results by origin and sum the number of fans per origin
+-- Finally, order the results by the total number of fans in descending order
 
-SELECT origin, nb_fans,
-       DENSE_RANK() OVER (ORDER BY nb_fans DESC) AS rank
+SELECT origin, SUM(nb_fans) AS nb_fans
 FROM metal_bands
+GROUP BY origin
 ORDER BY nb_fans DESC;
 
--- fans.sql
-SELECT origin, nb_fans,
-       DENSE_RANK() OVER (ORDER BY nb_fans DESC) AS rank
-FROM metal_bands
-ORDER BY nb_fans DESC;
