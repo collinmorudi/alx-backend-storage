@@ -1,12 +1,3 @@
--- commends will be added soon
+-- Create an index on the first letter of the name column
+CREATE INDEX idx_name_first ON names (SUBSTRING(name, 1, 1));
 
-ALTER TABLE names ADD first_letter CHAR(1);
-
-UPDATE names SET first_letter = LEFT(name, 1);
-
-CREATE INDEX idx_name_first ON names (first_letter);
-
--- index_my_names.sql
-ALTER TABLE names ADD first_letter CHAR(1);
-UPDATE names SET first_letter = LEFT(name, 1);
-CREATE INDEX idx_name_first ON names (first_letter);
