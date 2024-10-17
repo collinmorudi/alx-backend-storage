@@ -1,9 +1,13 @@
--- Select the origin of the band and the total number of fans
--- Then group the results by origin and sum the number of fans per origin
--- Finally, order the results by the total number of fans in descending order
+-- 2-fans.sql
 
-SELECT origin, SUM(nb_fans) AS total_fans, 
-       RANK() OVER (ORDER BY SUM(nb_fans) DESC) AS rank
+-- Create a temporary table to store the results
+CREATE TEMPORARY TABLE IF NOT EXISTS band_fans AS
+SELECT origin, COUNT(*) AS nb_fans
 FROM metal_bands
+GROUP BY origin;
+
+-- Select the origins and their corresponding fan counts, ordered by nb_fans
+SELECT origin, SUM(nb_fans) AS nb_fans
+FROM band_fans
 GROUP BY origin
-ORDER BY rank;
+ORDER BY nb_fans DESC;
