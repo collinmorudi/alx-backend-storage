@@ -1,18 +1,13 @@
 -- Script to list Glam rock bands ranked by their longevity
 
--- Import the metal_bands table dump
-SOURCE metal_bands.sql;
+SELECT band_name,
+       IFNULL(2022 - formed, 2022 - split) AS lifespan
+FROM metal_bands
+WHERE genre = 'Glam rock'
+ORDER BY lifespan DESC;
 
--- Select and rank Glam rock bands by their lifespan
-SELECT
-    band_name,
-    CASE
-        WHEN split IS NULL THEN 2022 - formed
-        ELSE split - formed
-    END AS lifespan
-FROM
-    metal_bands
-WHERE
-    main_style = 'Glam rock'
-ORDER BY
-    lifespan DESC;
+SELECT band_name,
+       IF(split IS NULL, 2022 - formed, split - formed) AS lifespan
+FROM metal_bands
+WHERE genre = 'Glam rock'
+ORDER BY lifespan DESC;
