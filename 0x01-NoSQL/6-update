@@ -1,5 +1,5 @@
-// 6-update
-db.school.updateMany(
-    { name: "Holberton school" }, 
-    { $set: { address: "972 Mission street" } }
-)
+// Use the specified database
+use my_db;
+
+// Update documents with name "Holberton school" to add the address attribute
+db.school.updateMany({ name: "Holberton school" }, { $set: { address: "972 Mission street" } });
