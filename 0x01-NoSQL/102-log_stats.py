@@ -1,47 +1,48 @@
 #!/usr/bin/env python3
-""" 102-log_stats.py """
+"""Task 15's module."""
 
 
 from pymongo import MongoClient
-from collections import Counter
 
 
-def print_log_stats():
-    """todo: add comments"""
-    client = MongoClient('mongodb://127.0.0.1:27017')
-    db = client.logs
-    nginx_collection = db.nginx
+def display_log_statistics(nginx_collection):
+    """Displays statistics about Nginx request logs."""
 
-    # Total logs
     total_logs = nginx_collection.count_documents({})
-    print(f"{total_logs} logs")
-
-    # Count methods
-    methods_count = nginx_collection.aggregate([
-        {"$group": {"_id": "$method", "count": {"$sum": 1}}}
-    ])
-    print("Methods:")
-    for method in ["GET", "POST", "PUT", "PATCH", "DELETE"]:
-        count = next((item['count'] for item in methods_count
-                      if item['_id'] == method), 0)
-        print(f"\tmethod {method}: {count}")
-
-    # Count status check
-    status_check_count = nginx_collection.count_documents(
-                         {"method": "GET", "path": "/status"})
-    print(f"{status_check_count} status check")
-
-    # Top 10 IPs
-    print("IPs:")
-    ips = nginx_collection.aggregate([
-        {"$group": {"_id": "$ip", "count": {"$sum": 1}}},
-        {"$sort": {"count": -1}},
-        {"$limit": 10}
-    ])
-
-    for ip in ips:
-        print(f"\t{ip['_id']}: {ip['count']}")
+    print(f'{total_logs} logs')
+    print('Methods:')
+    methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+    for method in methods:
+        method_count = nginx_collection.count_documents({'method': method})
+        print(f'\tmethod {method}: {method_count}')
+    status_checks = nginx_collection.count_documents(
+                    {'method': 'GET', 'path': '/status'})
+    print(f'{status_checks} status check')
 
 
-if __name__ == "__main__":
-    print_log_stats()
+def display_top_ips(nginx_collection):
+    """Displays the top 10 HTTP IPs in the collection."""
+    print('IPs:')
+    top_ips = nginx_collection.aggregate(
+        [
+            {'$group': {'_id': "$ip", 'requestCount': {'$sum': 1}}},
+            {'$sort': {'requestCount': -1}},
+            {'$limit': 10}
+        ]
+    )
+    for ip_log in top_ips:
+        ip = ip_log['_id']
+        request_count = ip_log['requestCount']
+        print(f'\t{ip}: {request_count}')
+
+
+def main():
+    '''Provides some stats about Nginx logs stored in MongoDB.
+    '''
+    client = MongoClient('mongodb://127.0.0.1:27017')
+    display_log_statistics(client.logs.nginx)
+    display_top_ips(client.logs.nginx)
+
+
+if __name__ == '__main__':
+    main()
