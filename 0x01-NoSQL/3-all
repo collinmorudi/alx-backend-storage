@@ -1,5 +1,2 @@
-// Use the specified database
-use my_db;
-
-// List all documents in the school collection
-db.school.find();
+// 3-all
+db.school.find().forEach(printjson)

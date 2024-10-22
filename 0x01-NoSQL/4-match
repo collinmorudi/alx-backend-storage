@@ -1,5 +1,2 @@
-// Use the specified database
-use my_db;
-
-// Find all documents with name "Holberton school" in the school collection
-db.school.find({ name: "Holberton school" });
+// 4-match
+db.school.find({ name: "Holberton school" }).forEach(printjson)
