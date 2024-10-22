@@ -1,0 +1,7 @@
+// Use the specified database
+use my_db;
+
+// Insert a document into the school collection
+db.school.insertOne({
+    name: "Holberton school"
+});
