@@ -7,6 +7,7 @@ from collections import Counter
 
 
 def print_log_stats():
+    """ todo: add comment"""
     client = MongoClient('mongodb://127.0.0.1:27017')
     db = client.logs
     nginx_collection = db.nginx
