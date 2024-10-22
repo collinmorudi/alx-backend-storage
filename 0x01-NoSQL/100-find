@@ -1,3 +1,2 @@
 // Find documents with name starting by Holberton
-use my_db;
-db.school.find({ name: /^Holberton/i });
+db.school.find({ name: /^Holberton/ }).forEach(printjson);
