@@ -1,5 +1,2 @@
-// Use the specified database
-use my_db;
-
 // Count the number of documents in the school collection
 db.school.countDocuments();
