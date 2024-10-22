@@ -2,6 +2,6 @@
 use my_db;
 
 // Insert a document into the school collection
-db.school.insertOne({
+db.school.insert({
     name: "Holberton school"
 });
