@@ -1,32 +1,16 @@
 #!/usr/bin/env python3
-""" 10-main """
+"""Module that updates the topics of a school document"""
 
 
-from pymongo import MongoClient
-list_all = __import__('8-all').list_all
-update_topics = __import__('10-update_topics').update_topics
+def update_topics(mongo_collection, name, topics):
+    """Changes all topics of a school document based on the name.
 
+    Args:
+        mongo_collection: A pymongo collection object.
+        name (str): The name of the school to update.
+        topics (list): A list of strings representing the topics.
 
-if __name__ == "__main__":
-    # Connect to MongoDB
-    client = MongoClient('mongodb://127.0.0.1:27017')
-    school_collection = client.my_db.school
-
-    # Update topics for "Holberton school"
-    update_topics(school_collection, "Holberton school",
-                  ["Sys admin", "AI", "Algorithm"])
-
-    # List all documents to verify the update
-    schools = list_all(school_collection)
-    for school in schools:
-        print("[{}] {} {}".format(school.get('_id'), school.get('name'),
-                                  school.get('topics', "")))
-
-    # Update topics again
-    update_topics(school_collection, "Holberton school", ["iOS"])
-
-    # List all documents again to verify the second update
-    schools = list_all(school_collection)
-    for school in schools:
-        print("[{}] {} {}".format(school.get('_id'), school.get('name'),
-                                  school.get('topics', "")))
+    Returns:
+        None
+    """
+    mongo_collection.update_many({"name": name}, {"$set": {"topics": topics}})
