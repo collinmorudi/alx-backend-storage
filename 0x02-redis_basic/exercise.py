@@ -3,6 +3,7 @@
 Exercise module for Redis Cache
 """
 
+
 import redis
 import uuid
 from typing import Callable, Union
@@ -41,13 +42,16 @@ class Cache:
 
     @call_history  # Apply the call_history decorator to store method
     def store(self, data: Union[str, bytes, int, float]) -> str:
-        """Store the data in Redis using a randomly generated key and return the key."""
+        """Store the data in Redis using a randomly generated key and
+        return the key."""
         key = str(uuid.uuid4())
         self._redis.set(key, data)
         return key
 
-    def get(self, key: str, fn: Callable = None) -> Union[str, bytes, int, float, None]:
-        """Retrieve data from Redis and apply the conversion function if provided."""
+    def get(self, key: str, fn: Callable
+            = None) -> Union[str, bytes, int, float, None]:
+        """Retrieve data from Redis and apply the conversion function
+        if provided."""
         data = self._redis.get(key)
         if data is None:
             return None
@@ -64,24 +68,35 @@ class Cache:
         return self.get(key, fn=int)
 
 
+def replay(method: Callable):
+    """Display the history of calls of a particular function."""
+    cache = method.__self__
+    method_name = method.__qualname__
+
+    # Retrieve inputs and outputs lists from Redis
+    inputs_key = f"{method_name}:inputs"
+    outputs_key = f"{method_name}:outputs"
+
+    inputs = cache._redis.lrange(inputs_key, 0, -1)
+    outputs = cache._redis.lrange(outputs_key, 0, -1)
+
+    # Display the number of calls
+    call_count = len(inputs)
+    print(f"{method_name} was called {call_count} times:")
+
+    # Loop through inputs and outputs, and print the history
+    for input_data, output_data in zip(inputs, outputs):
+        print(f"{method_name}(*{input_data.decode('utf-8')}) -> {output_data.decode('utf-8')}")
+
+
 # Example usage:
 if __name__ == "__main__":
     cache = Cache()
 
     # Store some values
-    s1 = cache.store("first")
-    print(s1)  # Should print the key for "first"
+    cache.store("foo")
+    cache.store("bar")
+    cache.store(42)
 
-    s2 = cache.store("secont")
-    print(s2)  # Should print the key for "secont"
-
-    s3 = cache.store("third")
-    print(s3)  # Should print the key for "third"
-
-    # Retrieve the input and output history
-    inputs = cache._redis.lrange(f"{cache.store.__qualname__}:inputs", 0, -1)
-    outputs = cache._redis.lrange(f"{cache.store.__qualname__}:outputs", 0, -1)
-
-    # Print the inputs and outputs history
-    print(f"inputs: {inputs}")
-    print(f"outputs: {outputs}")
+    # Replay the history of calls to cache.store
+    replay(cache.store)
