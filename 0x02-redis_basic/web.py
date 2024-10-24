@@ -52,9 +52,9 @@ def get_page(url: str) -> str:
 
 def main():
     """Main function to test get_page."""
-    url = "http://slowwly.robertomurray.co.uk/delay/2000/url/http://example.com"
-    print(get_page(url))  # This will take time due to the delay
-    print(get_page(url))  # This will be instant because it's cached
+    u = "http://slowwly.robertomurray.co.uk/delay/2000/url/http://example.com"
+    print(get_page(u))  # This will take time due to the delay
+    print(get_page(u))  # This will be instant because it's cached
 
 
 if __name__ == "__main__":
