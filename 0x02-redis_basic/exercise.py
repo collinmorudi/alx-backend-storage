@@ -7,7 +7,7 @@ Exercise module for Redis Cache
 import redis
 import uuid
 from typing import Callable, Union, Any
-import functools
+from functools import wraps
 
 
 def count_calls(method: Callable) -> Callable:
