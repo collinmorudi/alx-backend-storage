@@ -1,61 +1,46 @@
 #!/usr/bin/env python3
-"""Web Cache and Tracker using Redis."""
+"""A module with tools for request caching and tracking."""
 
-import requests
+
 import redis
+import requests
+from functools import wraps
+from typing import Callable
 
 
-def connect_to_redis(host='localhost', port=6379, db=0):
-    """Connect to the Redis server.
-
-    Parameters:
-    host (str): The host where Redis is running. Default is 'localhost'.
-    port (int): The port number. Default is 6379.
-    db (int): The database number. Default is 0.
-
-    Returns:
-    redis.Redis: A Redis client object.
-    """
-    return redis.Redis(host=host, port=port, db=db)
+# Create a Redis instance to interact with the Redis database
+redis_store = redis.Redis()
 
 
+def data_cacher(method: Callable) -> Callable:
+    """Caches the output of fetched data."""
+    @wraps(method)
+    def invoker(url) -> str:
+        """Wrapper function for caching the output."""
+        # Increment the request count for the given URL in Redis
+        redis_store.incr(f"count:{url}")
+
+        # Check if there is a cached result for the given URL
+        result = redis_store.get(f"result:{url}")
+        if result:
+            # Decode and return the cached result if it exists
+            return result.decode("utf-8")
+
+        # Fetch fresh data from the URL and cache it if no cached result exists
+        result = method(url)
+
+        # Initialize the request count for the URL in Redis if
+        # it's newly cached
+        redis_store.set(f"count:{url}", 0)
+
+        # Cache the result with a 10-second expiration time
+        redis_store.setex(f"result:{url}", 10, result)
+
+        return result
+    return invoker
+
+
+@data_cacher
 def get_page(url: str) -> str:
-    """Fetch the HTML content of the specified URL, cache it, and track
-    access counts.
-
-    Parameters:
-    url (str): The URL to fetch.
-
-    Returns:
-    str: The HTML content of the URL.
-    """
-    redis_client = connect_to_redis()
-
-    # Increase the count for this URL
-    count_key = f"count:{url}"
-    redis_client.incr(count_key)
-
-    # Check if the page is cached
-    cached_page = redis_client.get(url)
-    if cached_page:
-        return cached_page.decode('utf-8')
-
-    # Fetch the page from the internet
-    response = requests.get(url)
-    content = response.text
-
-    # Cache the response with an expiration of 10 seconds
-    redis_client.setex(url, 10, content)
-
-    return content
-
-
-def main():
-    """Main function to test get_page."""
-    u = "http://slowwly.robertomurray.co.uk/delay/2000/url/http://example.com"
-    print(get_page(u))  # This will take time due to the delay
-    print(get_page(u))  # This will be instant because it's cached
-
-
-if __name__ == "__main__":
-    main()
+    """Fetches the content of a URL and caches the response."""
+    return requests.get(url).text
