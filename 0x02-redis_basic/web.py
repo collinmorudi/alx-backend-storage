@@ -20,6 +20,10 @@ def connect_to_redis(host='localhost', port=6379, db=0):
     return redis.Redis(host=host, port=port, db=db)
 
 
+# Connect to Redis at the module level
+redis_client = connect_to_redis()
+
+
 def get_page(url: str) -> str:
     """Fetch the HTML content of the specified URL, cache it, and track
     access counts.
@@ -30,8 +34,6 @@ def get_page(url: str) -> str:
     Returns:
     str: The HTML content of the URL.
     """
-    redis_client = connect_to_redis()
-
     # Increase the count for this URL
     count_key = f"count:{url}"
     redis_client.incr(count_key)
@@ -58,7 +60,7 @@ def main():
     u = "http://slowwly.robertomurray.co.uk/delay/2000/url/http://example.com"
     print(get_page(u))  # This will take time due to the delay
     print(get_page(u))  # This will be instant because it's cached
-    print(redis_client.get(f"count:{u}").decode('utf-8'))  # Print the access count
+    print(redis_client.get(f"count:{u}").decode('utf-8'))
 
 
 if __name__ == "__main__":
